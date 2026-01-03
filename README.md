@@ -6,6 +6,7 @@ A lightweight Python library for Unicode text processing, including punctuation 
 
 - **Simple API**: Static methods for all text processing operations
 - **Punctuation handling**: Detect and remove punctuation marks with customizable rules
+- **Sentence-ending detection**: Detect sentence-ending punctuation for multiple languages (Chinese, English, Japanese, Korean)
 - **CJK support**: Detect Chinese, Japanese, and Korean characters
 - **Unicode-based**: Uses Unicode categories for accurate character classification
 - **Zero dependencies**: Uses only Python standard library (`unicodedata`)
@@ -73,6 +74,28 @@ is_cjk = UniText.is_cjk_character(code_point)  # True
 
 code_point = ord("A")
 is_cjk = UniText.is_cjk_character(code_point)  # False
+```
+
+### Check if text ends with sentence-ending punctuation
+
+```python
+from uni_text import UniText
+
+# Check if text ends with sentence-ending punctuation (Chinese)
+text = "这是一段文字。"
+is_end = UniText.is_sentence_end_with_punctuation(text, "zh")  # True
+
+# English
+text = "This is a sentence."
+is_end = UniText.is_sentence_end_with_punctuation(text, "en")  # True
+
+# Japanese
+text = "これは文章です。"
+is_end = UniText.is_sentence_end_with_punctuation(text, "ja")  # True
+
+# Korean
+text = "이것은 문장입니다."
+is_end = UniText.is_sentence_end_with_punctuation(text, "ko")  # True
 ```
 
 ## API Reference
@@ -226,6 +249,73 @@ is_cjk = UniText.is_cjk_character(code_point)  # True
 code_point = ord("A")
 is_cjk = UniText.is_cjk_character(code_point)  # False
 ```
+
+#### `UniText.is_sentence_end_with_punctuation(text, lang)`
+
+Check if text ends with sentence-ending punctuation based on language type.
+
+Calls the corresponding language-specific method to check if the text ends with sentence-ending punctuation. Supported language types: `'zh'` (Chinese), `'en'` (English), `'ja'` (Japanese), `'ko'` (Korean).
+
+Can be used to check if a Word's word field (e.g., "段。", "end.") ends with sentence-ending punctuation.
+
+**Parameters:**
+
+- `text` (str): Text to check (can be a single character or multiple characters, e.g., "段。", "end.").
+- `lang` (str): Language type, supports `'zh'`, `'en'`, `'ja'`, `'ko'`.
+
+**Returns:**
+
+- bool: `True` if text ends with sentence-ending punctuation, `False` otherwise.
+
+**Raises:**
+
+- `ValueError`: If `lang` parameter is not a supported language type.
+
+**Examples:**
+
+```python
+from uni_text import UniText
+
+# Chinese sentence-ending punctuation
+text = "这是一段文字。"
+is_end = UniText.is_sentence_end_with_punctuation(text, "zh")  # True
+
+text = "这是问题？"
+is_end = UniText.is_sentence_end_with_punctuation(text, "zh")  # True
+
+text = "这是感叹！"
+is_end = UniText.is_sentence_end_with_punctuation(text, "zh")  # True
+
+# English sentence-ending punctuation
+text = "This is a sentence."
+is_end = UniText.is_sentence_end_with_punctuation(text, "en")  # True
+
+text = "Is this a question?"
+is_end = UniText.is_sentence_end_with_punctuation(text, "en")  # True
+
+# Japanese sentence-ending punctuation
+text = "これは文章です。"
+is_end = UniText.is_sentence_end_with_punctuation(text, "ja")  # True
+
+# Korean sentence-ending punctuation
+text = "이것은 문장입니다."
+is_end = UniText.is_sentence_end_with_punctuation(text, "ko")  # True
+
+# Not sentence-ending punctuation
+text = "这是逗号，继续"
+is_end = UniText.is_sentence_end_with_punctuation(text, "zh")  # False
+```
+
+#### Class Constants
+
+The `UniText` class provides the following constants for sentence-ending punctuation sets:
+
+- `UniText.SENTENCE_END_PUNCTUATIONS_ZH`: Chinese sentence-ending punctuation set
+- `UniText.SENTENCE_END_PUNCTUATIONS_EN`: English sentence-ending punctuation set
+- `UniText.SENTENCE_END_PUNCTUATIONS_JA`: Japanese sentence-ending punctuation set
+- `UniText.SENTENCE_END_PUNCTUATIONS_KO`: Korean sentence-ending punctuation set
+
+These constants are sets containing the punctuation marks that are considered sentence-ending for each language. They can be accessed directly if needed for custom logic.
 
 ## Requirements
 
