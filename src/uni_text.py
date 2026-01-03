@@ -19,6 +19,50 @@ class UniText:
     text data, including punctuation handling and CJK character detection.
     """
 
+    # Chinese sentence-ending punctuation set
+    SENTENCE_END_PUNCTUATIONS_ZH = {
+        "。",  # Chinese period
+        "？",  # Chinese question mark
+        "！",  # Chinese exclamation mark
+        "；",  # Chinese semicolon
+        "…",  # Ellipsis (single character)
+        "……",  # Ellipsis (six dots)
+    }
+
+    # English sentence-ending punctuation set
+    SENTENCE_END_PUNCTUATIONS_EN = {
+        ".",  # English period
+        "?",  # English question mark
+        "!",  # English exclamation mark
+        ";",  # English semicolon
+        "…",  # Ellipsis (single character)
+        "...",  # Ellipsis (three dots)
+    }
+
+    # Japanese sentence-ending punctuation set
+    SENTENCE_END_PUNCTUATIONS_JA = {
+        "。",  # Japanese period
+        "？",  # Japanese question mark
+        "！",  # Japanese exclamation mark
+        "；",  # Japanese semicolon
+        "……",  # Ellipsis (six dots)
+    }
+
+    # Korean sentence-ending punctuation set
+    SENTENCE_END_PUNCTUATIONS_KO = {
+        ".",  # English period (also used in Korean)
+        "!",  # English exclamation mark
+        "?",  # English question mark
+        ";",  # English semicolon
+        "。",  # Full-width period
+        "！",  # Full-width exclamation mark
+        "？",  # Full-width question mark
+        "；",  # Full-width semicolon
+        "…",  # Ellipsis (single character)
+        "……",  # Ellipsis (six dots)
+        "...",  # Ellipsis (three dots)
+    }
+
     @staticmethod
     def is_punctuation(char: str) -> bool:
         """
@@ -176,3 +220,151 @@ class UniText:
             or (0x30A0 <= code_point <= 0x30FF)  # Katakana
             or (0xAC00 <= code_point <= 0xD7AF)  # Hangul Syllables
         )
+
+    @staticmethod
+    def _is_sentence_end_with_zh_punctuation(text: str) -> bool:
+        """
+        Check if text ends with Chinese sentence-ending punctuation (private method).
+
+        Supported sentence-ending punctuation:
+        - Period: 。
+        - Question mark: ？
+        - Exclamation mark: ！
+        - Semicolon: ；
+        - Ellipsis: … (single character), …… (six dots)
+
+        Args:
+            text: Text to check (can be a single character or multiple characters, e.g., "段。")
+
+        Returns:
+            bool: True if text ends with sentence-ending punctuation, False otherwise.
+        """
+        if not text:
+            return False
+
+        # Check if text ends with any sentence-ending punctuation
+        for punct in UniText.SENTENCE_END_PUNCTUATIONS_ZH:
+            if text.endswith(punct):
+                return True
+        return False
+
+    @staticmethod
+    def _is_sentence_end_with_en_punctuation(text: str) -> bool:
+        """
+        Check if text ends with English sentence-ending punctuation (private method).
+
+        Supported sentence-ending punctuation:
+        - Period: .
+        - Question mark: ?
+        - Exclamation mark: !
+        - Semicolon: ;
+        - Ellipsis: … (single character), ... (three dots)
+
+        Args:
+            text: Text to check (can be a single character or multiple characters, e.g., "end.")
+
+        Returns:
+            bool: True if text ends with sentence-ending punctuation, False otherwise.
+        """
+        if not text:
+            return False
+
+        # Check if text ends with any sentence-ending punctuation
+        for punct in UniText.SENTENCE_END_PUNCTUATIONS_EN:
+            if text.endswith(punct):
+                return True
+        return False
+
+    @staticmethod
+    def _is_sentence_end_with_ja_punctuation(text: str) -> bool:
+        """
+        Check if text ends with Japanese sentence-ending punctuation (private method).
+
+        Supported sentence-ending punctuation:
+        - Period: 。
+        - Question mark: ？
+        - Exclamation mark: ！
+        - Semicolon: ；
+        - Ellipsis: …… (six dots)
+
+        Args:
+            text: Text to check (can be a single character or multiple characters, e.g., "終わり。")
+
+        Returns:
+            bool: True if text ends with sentence-ending punctuation, False otherwise.
+        """
+        if not text:
+            return False
+
+        # Check if text ends with any sentence-ending punctuation
+        for punct in UniText.SENTENCE_END_PUNCTUATIONS_JA:
+            if text.endswith(punct):
+                return True
+        return False
+
+    @staticmethod
+    def _is_sentence_end_with_ko_punctuation(text: str) -> bool:
+        """
+        Check if text ends with Korean sentence-ending punctuation (private method).
+
+        Supported sentence-ending punctuation:
+        - Half-width period: .
+        - Half-width question mark: ?
+        - Half-width exclamation mark: !
+        - Half-width semicolon: ;
+        - Full-width period: 。
+        - Full-width question mark: ？
+        - Full-width exclamation mark: ！
+        - Full-width semicolon: ；
+        - Ellipsis: … (single character), …… (six dots), ... (three dots)
+
+        Args:
+            text: Text to check (can be a single character or multiple characters, e.g., "끝.")
+
+        Returns:
+            bool: True if text ends with sentence-ending punctuation, False otherwise.
+        """
+        if not text:
+            return False
+
+        # Check if text ends with any sentence-ending punctuation
+        for punct in UniText.SENTENCE_END_PUNCTUATIONS_KO:
+            if text.endswith(punct):
+                return True
+        return False
+
+    @staticmethod
+    def is_sentence_end_with_punctuation(text: str, lang: str) -> bool:
+        """
+        Check if text ends with sentence-ending punctuation (based on language type).
+
+        Calls the corresponding private method based on the specified language type.
+        Supported language types: 'zh' (Chinese), 'en' (English), 'ja' (Japanese), 'ko' (Korean).
+
+        Can be used to check if a Word's word field (e.g., "段。", "end.") ends with
+        sentence-ending punctuation.
+
+        Args:
+            text: Text to check (can be a single character or multiple characters, e.g., "段。", "end.")
+            lang: Language type, supports 'zh', 'en', 'ja', 'ko'
+
+        Returns:
+            bool: True if text ends with sentence-ending punctuation, False otherwise.
+
+        Raises:
+            ValueError: If lang parameter is not a supported language type.
+        """
+        if not text:
+            return False
+
+        lang = lang.lower()
+        if lang == "zh":
+            return UniText._is_sentence_end_with_zh_punctuation(text)
+        elif lang == "en":
+            return UniText._is_sentence_end_with_en_punctuation(text)
+        elif lang == "ja":
+            return UniText._is_sentence_end_with_ja_punctuation(text)
+        elif lang == "ko":
+            return UniText._is_sentence_end_with_ko_punctuation(text)
+        else:
+            raise ValueError(f"Unsupported language: {lang}. Supported languages: 'zh', 'en', 'ja', 'ko'")

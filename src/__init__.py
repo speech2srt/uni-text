@@ -11,7 +11,7 @@ import logging
 
 from .uni_text import UniText
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 # Configure library root logger
 # Use NullHandler to ensure library remains silent when user hasn't configured logging
