@@ -35,21 +35,25 @@ is_punc = UniText.is_punctuation("a")  # False
 ```python
 from uni_text import UniText
 
-# Remove punctuation (preserves apostrophes in contractions, %, and -)
-text = "Hello, world! Don't worry."
+# Remove punctuation (preserves functional punctuation like contractions, possessives, %, -, decimals, dates)
+text = "Hello, world! Don't worry. John's book is here."
 cleaned = UniText.remove_punctuations(text)
-# Result: "Hello world Don't worry"
-```
+# Result: "Hello world Don't worry John's book is here"
 
-### Remove punctuation in Chinese context
-
-```python
-from uni_text import UniText
-
-# Remove punctuation (also preserves decimal points)
+# Decimal points in numbers are preserved
 text = "价格是 99.5 元，很便宜。"
-cleaned = UniText.remove_punctuations_in_zh(text)
+cleaned = UniText.remove_punctuations(text)
 # Result: "价格是 99.5 元很便宜"
+
+# But sentence-ending periods are removed
+text = "This is a sentence. Another one."
+cleaned = UniText.remove_punctuations(text)
+# Result: "This is a sentence Another one"
+
+# Date and fraction slashes are preserved
+text = "Date: 2024/01/01. Fraction: 1/2."
+cleaned = UniText.remove_punctuations(text)
+# Result: "Date: 2024/01/01 Fraction: 1/2"
 ```
 
 ### Remove consecutive punctuation
@@ -131,9 +135,13 @@ Remove punctuation marks from text.
 
 Uses Unicode category to remove punctuation, but preserves the following special cases:
 
-- Apostrophes (`'`) in English contractions, e.g., "don't"
+- Apostrophes (`'`) in English contractions and possessives, e.g., "don't", "John's"
 - Percent signs (`%`)
 - Hyphens/dashes (`-`)
+- Decimal points (`.`) when used in numbers, e.g., "99.5", "3.14"
+- Slashes (`/`) when used in dates or fractions, e.g., "2024/01/01", "1/2"
+
+The method intelligently detects these functional punctuation marks by checking their context (e.g., surrounded by digits).
 
 **Parameters:**
 
@@ -143,38 +151,40 @@ Uses Unicode category to remove punctuation, but preserves the following special
 
 - str: Text with punctuation removed (special characters preserved).
 
-**Example:**
+**Examples:**
 
 ```python
 from uni_text import UniText
 
+# Basic punctuation removal
 text = "Hello, world! Don't worry - it's 100% safe."
 cleaned = UniText.remove_punctuations(text)
 # Result: "Hello world Don't worry - it's 100% safe"
-```
 
-#### `UniText.remove_punctuations_in_zh(text)`
-
-Remove punctuation marks from text (Chinese context).
-
-Similar to `remove_punctuations()`, but also preserves decimal points (`.`) in addition to the other special characters.
-
-**Parameters:**
-
-- `text` (str): Original text (may contain punctuation).
-
-**Returns:**
-
-- str: Text with punctuation removed (special characters preserved).
-
-**Example:**
-
-```python
-from uni_text import UniText
-
+# Decimal points in numbers are preserved
 text = "价格是 99.5 元，很便宜。"
-cleaned = UniText.remove_punctuations_in_zh(text)
+cleaned = UniText.remove_punctuations(text)
 # Result: "价格是 99.5 元很便宜"
+
+# Sentence-ending periods are removed
+text = "This is a sentence. Another one."
+cleaned = UniText.remove_punctuations(text)
+# Result: "This is a sentence Another one"
+
+# Decimal at end of number is preserved
+text = "The value is 5."
+cleaned = UniText.remove_punctuations(text)
+# Result: "The value is 5"
+
+# Slashes in dates/fractions are preserved
+text = "Date: 2024/01/01. Fraction: 1/2."
+cleaned = UniText.remove_punctuations(text)
+# Result: "Date: 2024/01/01 Fraction: 1/2"
+
+# Possessives are preserved
+text = "John's book is here."
+cleaned = UniText.remove_punctuations(text)
+# Result: "John's book is here"
 ```
 
 #### `UniText.remove_consecutive_punctuations(text)`

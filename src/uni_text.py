@@ -88,9 +88,11 @@ class UniText:
 
         Uses Unicode category to remove punctuation, but preserves the following
         special cases:
-        - Apostrophes (') in English contractions, e.g., "don't"
+        - Apostrophes (') in English contractions and possessives, e.g., "don't", "John's"
         - Percent signs (%)
         - Hyphens/dashes (-)
+        - Decimal points (.) when used in numbers, e.g., "99.5", "3.14"
+        - Slashes (/) when used in dates or fractions, e.g., "2024/01/01", "1/2"
 
         Args:
             text: Original text (may contain punctuation).
@@ -106,48 +108,36 @@ class UniText:
             if not UniText.is_punctuation(char):
                 result.append(char)
             elif char == "'":
-                # Preserve apostrophes in English contractions
+                # Preserve apostrophes in English contractions and possessives
                 if i > 0 and i < len(text) - 1:
+                    # Contractions: "don't"
                     if text[i - 1].isalpha() and text[i + 1].isalpha():
+                        result.append(char)
+                    # Possessives: "John's"
+                    elif text[i - 1].isalpha() and text[i + 1] in "sS":
+                        result.append(char)
+            elif char == ".":
+                # Preserve decimal points when used in numbers
+                is_decimal = False
+                if i > 0 and i < len(text) - 1:
+                    # Both sides are digits (e.g., "99.5")
+                    if text[i - 1].isdigit() and text[i + 1].isdigit():
+                        is_decimal = True
+                elif i > 0:
+                    # Preceded by digit, followed by space or end (e.g., "5.")
+                    if text[i - 1].isdigit():
+                        if i == len(text) - 1 or text[i + 1] in " \n\t":
+                            is_decimal = True
+
+                if is_decimal:
+                    result.append(char)
+            elif char == "/":
+                # Preserve slashes in dates or fractions (e.g., "2024/01/01", "1/2")
+                if i > 0 and i < len(text) - 1:
+                    if text[i - 1].isdigit() and text[i + 1].isdigit():
                         result.append(char)
             elif char in "%-":
                 # Always preserve percent signs and hyphens
-                result.append(char)
-
-        return "".join(result)
-
-    @staticmethod
-    def remove_punctuations_in_zh(text: str) -> str:
-        """
-        Remove punctuation marks from text (Chinese context).
-
-        Uses Unicode category to remove punctuation, but preserves the following
-        special cases:
-        - Apostrophes (') in English contractions, e.g., "don't"
-        - Percent signs (%)
-        - Hyphens/dashes (-)
-        - Decimal points (.)
-
-        Args:
-            text: Original text (may contain punctuation).
-
-        Returns:
-            str: Text with punctuation removed (special characters preserved).
-        """
-        if not text:
-            return text
-
-        result = []
-        for i, char in enumerate(text):
-            if not UniText.is_punctuation(char):
-                result.append(char)
-            elif char == "'":
-                # Preserve apostrophes in English contractions
-                if i > 0 and i < len(text) - 1:
-                    if text[i - 1].isalpha() and text[i + 1].isalpha():
-                        result.append(char)
-            elif char in "%-.":
-                # Always preserve percent signs, hyphens, and decimal points
                 result.append(char)
 
         return "".join(result)
