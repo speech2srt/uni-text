@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "uni-text"
-version = "0.2.1"
+version = "0.3.0"
 description = "A Python library for Unicode text processing, including punctuation handling and CJK character detection"
 readme = "README.md"
 requires-python = ">=3.10"

@@ -88,11 +88,11 @@ class UniText:
 
         Uses Unicode category to remove punctuation, but preserves the following
         special cases:
-        - Apostrophes (') in English contractions and possessives, e.g., "don't", "John's"
+        - Apostrophes (') in English contractions and possessives, e.g., "don't", "John's", "workers'"
         - Percent signs (%)
         - Hyphens/dashes (-)
-        - Decimal points (.) when used in numbers, e.g., "99.5", "3.14"
-        - Slashes (/) when used in dates or fractions, e.g., "2024/01/01", "1/2"
+        - Decimal points (.) when used in numbers, e.g., "99.5", "3.14", ".5"
+        - Slashes (/) when used in dates, fractions, or units, e.g., "2024/01/01", "1/2", "km/h"
 
         Args:
             text: Original text (may contain punctuation).
@@ -116,6 +116,10 @@ class UniText:
                     # Possessives: "John's"
                     elif text[i - 1].isalpha() and text[i + 1] in "sS":
                         result.append(char)
+                elif i > 0:
+                    # Plural possessives: "workers'"
+                    if text[i - 1].isalpha() and (i == len(text) - 1 or text[i + 1] in " \n\t"):
+                        result.append(char)
             elif char == ".":
                 # Preserve decimal points when used in numbers
                 is_decimal = False
@@ -128,13 +132,21 @@ class UniText:
                     if text[i - 1].isdigit():
                         if i == len(text) - 1 or text[i + 1] in " \n\t":
                             is_decimal = True
+                elif i < len(text) - 1:
+                    # Starts with decimal point, followed by digit (e.g., ".5")
+                    if text[i + 1].isdigit():
+                        is_decimal = True
 
                 if is_decimal:
                     result.append(char)
             elif char == "/":
-                # Preserve slashes in dates or fractions (e.g., "2024/01/01", "1/2")
+                # Preserve slashes in dates, fractions, or units (e.g., "2024/01/01", "1/2", "km/h")
                 if i > 0 and i < len(text) - 1:
+                    # Dates or fractions: digits on both sides (e.g., "2024/01/01", "1/2")
                     if text[i - 1].isdigit() and text[i + 1].isdigit():
+                        result.append(char)
+                    # Units: letters on both sides (e.g., "km/h", "m/s")
+                    elif text[i - 1].isalpha() and text[i + 1].isalpha():
                         result.append(char)
             elif char in "%-":
                 # Always preserve percent signs and hyphens
@@ -191,10 +203,20 @@ class UniText:
         CJK character ranges include:
         - CJK Unified Ideographs: 0x4E00-0x9FFF
         - CJK Extension A: 0x3400-0x4DBF
+        - CJK Extension B: 0x20000-0x2A6DF
+        - CJK Extension C: 0x2A700-0x2B73F
+        - CJK Extension D: 0x2B740-0x2B81F
+        - CJK Extension E: 0x2B820-0x2CEAF
+        - CJK Extension F: 0x2CEB0-0x2EBEF
+        - CJK Extension G: 0x30000-0x3134F
+        - CJK Extension H: 0x31350-0x323AF
+        - CJK Extension I: 0x2EBF0-0x2EE5F
         - CJK Compatibility Ideographs: 0xF900-0xFAFF
+        - CJK Compatibility Ideographs Supplement: 0x2F800-0x2FA1F
         - Hiragana: 0x3040-0x309F
         - Katakana: 0x30A0-0x30FF
         - Hangul Syllables: 0xAC00-0xD7AF
+        - Bopomofo (Zhuyin): 0x3100-0x312F
 
         Args:
             code_point: Unicode code point (integer).
@@ -205,10 +227,20 @@ class UniText:
         return (
             (0x4E00 <= code_point <= 0x9FFF)  # CJK Unified Ideographs
             or (0x3400 <= code_point <= 0x4DBF)  # CJK Extension A
+            or (0x20000 <= code_point <= 0x2A6DF)  # CJK Extension B
+            or (0x2A700 <= code_point <= 0x2B73F)  # CJK Extension C
+            or (0x2B740 <= code_point <= 0x2B81F)  # CJK Extension D
+            or (0x2B820 <= code_point <= 0x2CEAF)  # CJK Extension E
+            or (0x2CEB0 <= code_point <= 0x2EBEF)  # CJK Extension F
+            or (0x30000 <= code_point <= 0x3134F)  # CJK Extension G
+            or (0x31350 <= code_point <= 0x323AF)  # CJK Extension H
+            or (0x2EBF0 <= code_point <= 0x2EE5F)  # CJK Extension I
             or (0xF900 <= code_point <= 0xFAFF)  # CJK Compatibility Ideographs
+            or (0x2F800 <= code_point <= 0x2FA1F)  # CJK Compatibility Ideographs Supplement
             or (0x3040 <= code_point <= 0x309F)  # Hiragana
             or (0x30A0 <= code_point <= 0x30FF)  # Katakana
             or (0xAC00 <= code_point <= 0xD7AF)  # Hangul Syllables
+            or (0x3100 <= code_point <= 0x312F)  # Bopomofo (Zhuyin)
         )
 
     @staticmethod

@@ -135,13 +135,13 @@ Remove punctuation marks from text.
 
 Uses Unicode category to remove punctuation, but preserves the following special cases:
 
-- Apostrophes (`'`) in English contractions and possessives, e.g., "don't", "John's"
+- Apostrophes (`'`) in English contractions and possessives, e.g., "don't", "John's", "workers'"
 - Percent signs (`%`)
 - Hyphens/dashes (`-`)
-- Decimal points (`.`) when used in numbers, e.g., "99.5", "3.14"
-- Slashes (`/`) when used in dates or fractions, e.g., "2024/01/01", "1/2"
+- Decimal points (`.`) when used in numbers, e.g., "99.5", "3.14", ".5"
+- Slashes (`/`) when used in dates, fractions, or units, e.g., "2024/01/01", "1/2", "km/h"
 
-The method intelligently detects these functional punctuation marks by checking their context (e.g., surrounded by digits).
+The method intelligently detects these functional punctuation marks by checking their context (e.g., surrounded by digits or letters).
 
 **Parameters:**
 
@@ -185,6 +185,21 @@ cleaned = UniText.remove_punctuations(text)
 text = "John's book is here."
 cleaned = UniText.remove_punctuations(text)
 # Result: "John's book is here"
+
+# Plural possessives are preserved
+text = "The workers' rights are important."
+cleaned = UniText.remove_punctuations(text)
+# Result: "The workers' rights are important"
+
+# Decimal points at start of number are preserved
+text = "The value is .5, not 5."
+cleaned = UniText.remove_punctuations(text)
+# Result: "The value is .5 not 5"
+
+# Slashes in units are preserved
+text = "Speed: 100 km/h. Ratio: 1/2."
+cleaned = UniText.remove_punctuations(text)
+# Result: "Speed: 100 km/h Ratio: 1/2"
 ```
 
 #### `UniText.remove_consecutive_punctuations(text)`
@@ -225,10 +240,13 @@ CJK character ranges include:
 
 - CJK Unified Ideographs: 0x4E00-0x9FFF
 - CJK Extension A: 0x3400-0x4DBF
+- CJK Extension B-I: 0x20000-0x323AF, 0x2EBF0-0x2EE5F (includes Extensions B, C, D, E, F, G, H, I)
 - CJK Compatibility Ideographs: 0xF900-0xFAFF
+- CJK Compatibility Ideographs Supplement: 0x2F800-0x2FA1F
 - Hiragana: 0x3040-0x309F
 - Katakana: 0x30A0-0x30FF
 - Hangul Syllables: 0xAC00-0xD7AF
+- Bopomofo (Zhuyin): 0x3100-0x312F
 
 **Parameters:**
 
